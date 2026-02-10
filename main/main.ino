@@ -6,7 +6,7 @@
 #define UNCOLORED   1
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Epd epd;
 
   if (epd.Init() != 0) {
