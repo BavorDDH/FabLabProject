@@ -1,26 +1,35 @@
-unsigned long getNTPTime() {
-  WiFi.hostByName("pool.ntp.org", timeServerIP);
+void initDisplay() {
+  EPD_4IN2_V2_Init();
+  EPD_4IN2_V2_Clear();
+  DEV_Delay_ms(500);
 
-  memset(packetBuffer, 0, 48);
-  packetBuffer[0] = 0b11100011;  // LI, Version, Mode
-
-  Udp.beginPacket(timeServerIP, 123);
-  Udp.write(packetBuffer, 48);
-  if (Udp.endPacket() == 0) return 0;  // Send failed
-
-  // Wait up to 1500ms for a response
-  int retry = 0;
-  while (Udp.parsePacket() == 0 && retry < 15) {
-    delay(100);
-    retry++;
+  // Create a new image cache
+  /* you have to edit the startup_stm32fxxx.s file and set a big enough heap size */
+  UWORD Imagesize = ((EPD_4IN2_V2_WIDTH % 8 == 0) ? (EPD_4IN2_V2_WIDTH / 8) : (EPD_4IN2_V2_WIDTH / 8 + 1)) * EPD_4IN2_V2_HEIGHT;
+  if ((ScreenImage = (UBYTE*)malloc(Imagesize)) == NULL) {
+    Debug("Failed to apply for black memory...\r\n");
+    return;
   }
 
-  if (Udp.parsePacket()) {
-    Udp.read(packetBuffer, 48);
-    unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
-    unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
-    unsigned long secsSince1900 = highWord << 16 | lowWord;
-    return secsSince1900 - 2208988800UL;
+  Paint_NewImage(ScreenImage, EPD_4IN2_V2_WIDTH, EPD_4IN2_V2_HEIGHT, 0, WHITE);
+
+  Paint_SelectImage(ScreenImage);
+}
+
+void initWifi() {
+  WiFi.begin(ssid, password);
+
+  Paint_Clear(WHITE);
+  Paint_NewImage(ScreenImage, 400, 60, 0, WHITE);
+  Paint_DrawString_EN(10, 0, "Connecting to wifi...", &Font16, BLACK, WHITE);
+  EPD_4IN2_V2_PartialDisplay(ScreenImage, 0, 0, 400, 60);
+
+  // todo: fail safe?
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
   }
-  return 0;
+
+  Paint_Clear(WHITE);
+  Paint_DrawString_EN(10, 0, "Connected to wifi", &Font16, BLACK, WHITE);
+  EPD_4IN2_V2_PartialDisplay(ScreenImage, 0, 0, 400, 60);
 }
