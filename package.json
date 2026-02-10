@@ -1,0 +1,20 @@
+{
+  "name": "fablabproject",
+  "version": "1.0.0",
+  "description": "a fablab project using a firebase web api",
+  "homepage": "https://github.com/BavorDDH/FabLabProject#readme",
+  "bugs": {
+    "url": "https://github.com/BavorDDH/FabLabProject/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BavorDDH/FabLabProject.git"
+  },
+  "license": "ISC",
+  "author": "BavorDDH",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
