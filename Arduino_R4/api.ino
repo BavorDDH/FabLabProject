@@ -21,6 +21,7 @@ const unsigned long HTTP_TIMEOUT = 5000;
 
 void startRequest(int departureCount, bool toTown) {
   if (httpState != HTTP_IDLE) {
+    debugDisplay("NOT IDLE");
     return;
   }
 
@@ -72,7 +73,7 @@ bool pollRequest(DepartureResult &outResult) {
     parseResponse(outResult);
 
     client.stop();
-    httpState = HTTP_DONE;
+    httpState = HTTP_IDLE;
     return true;
   }
   return false;
