@@ -20,7 +20,7 @@ unsigned long requestStartTime;
 const unsigned long HTTP_TIMEOUT = 10000;
 
 void startRequest(int departureCount, bool toTown) {
-  if (httpState != HTTP_IDLE) {
+  if (httpState != HTTP_IDLE && httpState != HTTP_ERROR) {
     debugDisplay("NOT IDLE");
     return;
   }
@@ -52,7 +52,8 @@ bool pollRequest(DepartureResult &outResult) {
     client.stop();
     httpState = HTTP_ERROR;
     debugDisplay("TIMEOUT");
-    return false;
+    outResult.success = false;
+    return true;
   }
 
   if (httpState == HTTP_WAITING_HEADERS) {
@@ -63,7 +64,8 @@ bool pollRequest(DepartureResult &outResult) {
         client.stop();
         httpState = HTTP_ERROR;
         debugDisplay("Http err: " + String(statusCode));
-        return false;
+        outResult.success = false;
+        return true;
       }
 
       client.skipResponseHeaders();
