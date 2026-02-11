@@ -14,6 +14,8 @@ int buttonState;
 // must be larger than HTTP_TIMEOUT
 #define API_UPDATE_FREQUENCY 60 * 1000
 bool toTown = true;
+bool queueRequest = false;
+int nextIndexToUpdate = 0;
 
 struct DepartureResult {
   unsigned long long time;
@@ -22,6 +24,13 @@ struct DepartureResult {
   bool success;
 };
 DepartureResult currentData;
+
+enum RequestState {
+  REQUEST_NONE,
+  REQUEST_HTTP,
+  REQUEST_UI,
+};
+RequestState currentRequestState;
 
 unsigned long long baseUnixTime;  // seconds
 unsigned long baseMillis;         // milliseconds at sync moment
@@ -58,8 +67,7 @@ void loop() {
   if (lastButtonState == HIGH && buttonState == LOW) {
     toTown = !toTown;
     updateTopBarDirection(toTown);
-    startRequest(MAX_DEPARTURES, toTown);
-    lastApiTick = now;
+    fetchNewData(true, now);
   }
 
   lastButtonState = buttonState;
@@ -81,19 +89,57 @@ void loop() {
   if (now - lastApiTick >= API_UPDATE_FREQUENCY) {
     lastApiTick += API_UPDATE_FREQUENCY;
 
-    startRequest(MAX_DEPARTURES, toTown);
+    fetchNewData(false, now);
   }
 
-  if (pollRequest(currentData)) {
+  if (queueRequest && currentRequestState == REQUEST_UI){
+    queueRequest = false;
+    fetchNewData(true, now);
+  }
+
+  if (/*currentRequestState == REQUEST_HTTP && */pollRequest(currentData)) {
     if (currentData.success) {
       syncTime(currentData.time);
+      setRequestState(REQUEST_UI);
 
-      // todo: one at a time
-      for (int i = 0; i < currentData.count; i++) {
-        updateDeparture(currentData.departures[i], i);
-      }
+      nextIndexToUpdate = 0;
+    } else {
+      setRequestState(REQUEST_NONE);
+    }
+  }
+
+  if (currentRequestState == REQUEST_UI) {
+    updateDeparture(currentData.departures[nextIndexToUpdate], nextIndexToUpdate);
+
+    nextIndexToUpdate++;
+    if (nextIndexToUpdate >= currentData.count) {
+      setRequestState(REQUEST_NONE);
+    }
+  }
+}
+
+void fetchNewData(bool force, unsigned long now) {
+  if (currentRequestState != REQUEST_NONE && (currentRequestState != REQUEST_UI || !force)) {
+    if (force) {
+      queueRequest = true;
     }
 
-    showUpdatingText(false);
+    return;
   }
+
+  setRequestState(REQUEST_HTTP);
+  startRequest(MAX_DEPARTURES, toTown);
+  lastApiTick = now;
+}
+
+void setRequestState(RequestState newState) {
+  bool lastShown = currentRequestState != REQUEST_NONE;
+  bool newShown = newState != REQUEST_NONE;
+  if (lastShown != newShown) {
+    showUpdatingText(newShown);
+  }
+
+  Serial.write("Set state to: ");
+  Serial.write(String(newState).c_str());
+  currentRequestState = newState;
 }
