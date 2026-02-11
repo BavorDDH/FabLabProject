@@ -9,8 +9,8 @@ const int buttonPin = 2;
 int lastButtonState = HIGH;
 int buttonState;
 
-#define MAX_DEPARTURES 5
-#define MAX_DEPARTURE_STR_LEN 32
+#define MAX_DEPARTURES 7
+#define MAX_DEPARTURE_STR_LEN 48
 // must be larger than HTTP_TIMEOUT
 #define API_UPDATE_FREQUENCY 60 * 1000
 bool toTown = true;
