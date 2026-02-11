@@ -17,13 +17,15 @@ HttpState httpState = HTTP_IDLE;
 
 unsigned long requestStartTime;
 
-const unsigned long HTTP_TIMEOUT = 5000;
+const unsigned long HTTP_TIMEOUT = 10000;
 
 void startRequest(int departureCount, bool toTown) {
   if (httpState != HTTP_IDLE) {
     debugDisplay("NOT IDLE");
     return;
   }
+
+  showUpdatingText(true);
 
   requestStartTime = millis();
 

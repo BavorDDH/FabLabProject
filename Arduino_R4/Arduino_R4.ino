@@ -24,7 +24,7 @@ struct DepartureResult {
 DepartureResult currentData;
 
 unsigned long long baseUnixTime;  // seconds
-unsigned long baseMillis;    // milliseconds at sync moment
+unsigned long baseMillis;         // milliseconds at sync moment
 
 UBYTE* ScreenImage;
 
@@ -84,12 +84,16 @@ void loop() {
     startRequest(MAX_DEPARTURES, toTown);
   }
 
-  if (pollRequest(currentData) && currentData.success) {
-    syncTime(currentData.time);
+  if (pollRequest(currentData)) {
+    if (currentData.success) {
+      syncTime(currentData.time);
 
-    // todo: one at a time
-    for (int i = 0; i < currentData.count; i++) {
-      updateDeparture(currentData.departures[i], i);
+      // todo: one at a time
+      for (int i = 0; i < currentData.count; i++) {
+        updateDeparture(currentData.departures[i], i);
+      }
     }
+
+    showUpdatingText(false);
   }
 }

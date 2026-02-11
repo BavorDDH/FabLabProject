@@ -7,9 +7,17 @@ sFONT* ItemFont = &Font20;
 const int ItemMargin = 8;
 const int ItemHeight = ItemMargin + TopBarFont->Height;
 
+const char* UpdatingText = "Updating";
+sFONT* UpdatingTextFont = &Font16;
+const int UpdatingTextLength = strlen(UpdatingText);
+const int UpdatingTextMargin = 5;
+const int UpdatingTextHeight = UpdatingTextMargin * 2 + TopBarFont->Height;
+const int UpdatingTextWidth = UpdatingTextFont->Width * UpdatingTextLength + UpdatingTextMargin * 2;
+
 #define IMG_MODE_TOPBAR 0
 #define IMG_MODE_TOPBAR_TEXT 1
 #define IMG_MODE_DEPARTURE_ITEM 2
+#define IMG_MODE_UPDATING_TEXT 3
 
 int lastImageMode = -1;
 
@@ -27,6 +35,9 @@ void prepareImage(int imageMode) {
       break;
     case IMG_MODE_DEPARTURE_ITEM:
       Paint_NewImage(ScreenImage, EPD_4IN2_V2_WIDTH, ItemHeight, 0, WHITE);
+      break;
+    case IMG_MODE_UPDATING_TEXT:
+      Paint_NewImage(ScreenImage, UpdatingTextWidth, UpdatingTextHeight, 0, BLACK);
       break;
   }
 
@@ -99,4 +110,19 @@ void updateDeparture(const char* text, int index) {
 
   EPD_4IN2_V2_PartialDisplay(ScreenImage, 0, yPos, EPD_4IN2_V2_WIDTH, yPos + ItemHeight);
   EPD_4IN2_V2_PartialDisplay(ScreenImage, 0, yPos, EPD_4IN2_V2_WIDTH, yPos + ItemHeight);
+}
+
+void showUpdatingText(bool show) {
+  prepareImage(IMG_MODE_UPDATING_TEXT);
+
+  if (show) {
+    Paint_Clear(BLACK);
+
+    Paint_DrawString_EN(UpdatingTextMargin, UpdatingTextMargin, UpdatingText, UpdatingTextFont, WHITE, BLACK);
+  } else {
+    Paint_Clear(WHITE);
+  }
+
+  EPD_4IN2_V2_PartialDisplay(ScreenImage, EPD_4IN2_V2_WIDTH - UpdatingTextWidth, EPD_4IN2_V2_HEIGHT - UpdatingTextHeight, EPD_4IN2_V2_WIDTH, EPD_4IN2_V2_HEIGHT);
+  EPD_4IN2_V2_PartialDisplay(ScreenImage, EPD_4IN2_V2_WIDTH - UpdatingTextWidth, EPD_4IN2_V2_HEIGHT - UpdatingTextHeight, EPD_4IN2_V2_WIDTH, EPD_4IN2_V2_HEIGHT);
 }
