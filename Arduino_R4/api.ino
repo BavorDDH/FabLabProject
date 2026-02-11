@@ -19,14 +19,14 @@ unsigned long requestStartTime;
 
 const unsigned long HTTP_TIMEOUT = 2500;
 
-void startRequest(int departureCount) {
+void startRequest(int departureCount, bool toTown) {
   if (httpState != HTTP_IDLE) {
     return;
   }
 
   requestStartTime = millis();
 
-  String path = "/departures?count=" + String(departureCount);
+  String path = "/departures?count=" + String(departureCount) + "&toTown=" + (toTown ? "true" : "false");
 
   int err = client.get(path);
 

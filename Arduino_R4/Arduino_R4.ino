@@ -11,6 +11,8 @@ int buttonState;
 
 #define MAX_DEPARTURES 5
 #define MAX_DEPARTURE_STR_LEN 32
+// must be larger than HTTP_TIMEOUT
+#define API_UPDATE_FREQUENCY 60 * 1000
 bool toTown = true;
 
 struct DepartureResult {
@@ -43,24 +45,26 @@ void setup() {
   updateDeparture("77 8:55 20 min", 1);
   updateDeparture("bla bla", 2);
 
-  startRequest(MAX_DEPARTURES);
+  startRequest(MAX_DEPARTURES, toTown);
 }
 
 unsigned long lastSecondTick = 0;
 unsigned long lastApiTick = 0;
 
 void loop() {
+  unsigned long now = millis();
+
   // update button
   buttonState = digitalRead(buttonPin);
 
   if (lastButtonState == HIGH && buttonState == LOW) {
     toTown = !toTown;
     updateTopBarDirection(toTown);
+    startRequest(MAX_DEPARTURES, toTown);
+    lastApiTick = now;
   }
 
   lastButtonState = buttonState;
-
-  unsigned long now = millis();
 
   // update every second
   if (now - lastSecondTick >= 1000) {
@@ -76,10 +80,10 @@ void loop() {
   }
 
   // get every minute (60s), must be larger than HTTP_TIMEOUT
-  if (now - lastApiTick >= 60000) {
-    lastApiTick += 60000;
+  if (now - lastApiTick >= API_UPDATE_FREQUENCY) {
+    lastApiTick += API_UPDATE_FREQUENCY;
 
-    startRequest(MAX_DEPARTURES);
+    startRequest(MAX_DEPARTURES, toTown);
   }
 
   if (pollRequest(currentData) && currentData.success) {
