@@ -5,13 +5,13 @@ const int TopBarTextWidth = TopBarFont->Width * 8 + TopBarMargin;
 
 sFONT* ItemFont = &Font20;
 const int ItemMargin = 8;
-const int ItemHeight = ItemMargin + TopBarFont->Height;
+const int ItemHeight = ItemMargin + ItemFont->Height;
 
 const char* UpdatingText = "Updating";
 sFONT* UpdatingTextFont = &Font16;
 const int UpdatingTextLength = strlen(UpdatingText);
 const int UpdatingTextMargin = 5;
-const int UpdatingTextHeight = UpdatingTextMargin * 2 + TopBarFont->Height;
+const int UpdatingTextHeight = UpdatingTextMargin * 2 + UpdatingTextFont->Height;
 const int UpdatingTextWidth = UpdatingTextFont->Width * UpdatingTextLength + UpdatingTextMargin * 2;
 
 #define IMG_MODE_TOPBAR 0

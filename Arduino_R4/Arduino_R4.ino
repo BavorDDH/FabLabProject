@@ -92,7 +92,7 @@ void loop() {
     fetchNewData(false, now);
   }
 
-  if (queueRequest && currentRequestState == REQUEST_UI){
+  if (queueRequest && currentRequestState != REQUEST_HTTP){
     queueRequest = false;
     fetchNewData(true, now);
   }
