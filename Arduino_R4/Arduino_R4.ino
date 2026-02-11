@@ -5,8 +5,9 @@
 #include <ArduinoHttpClient.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "JICfree";
-const char* password = "welcome2jic";
+const int buttonPin = 2;
+int lastButtonState = HIGH;
+int buttonState;
 
 #define MAX_DEPARTURES 5
 #define MAX_DEPARTURE_STR_LEN 32
@@ -33,6 +34,8 @@ void setup() {
   initDisplay();
   initWifi();
 
+  pinMode(buttonPin, INPUT_PULLUP);
+
   EPD_4IN2_V2_Clear();
 
   updateTopBar(0, 0, 0, toTown);
@@ -47,6 +50,16 @@ unsigned long lastSecondTick = 0;
 unsigned long lastApiTick = 0;
 
 void loop() {
+  // update button
+  buttonState = digitalRead(buttonPin);
+
+  if (lastButtonState == HIGH && buttonState == LOW) {
+    toTown = !toTown;
+    updateTopBarDirection(toTown);
+  }
+
+  lastButtonState = buttonState;
+
   unsigned long now = millis();
 
   // update every second
@@ -59,7 +72,7 @@ void loop() {
     int minutes = (unixTime % 3600UL) / 60;
     int seconds = unixTime % 60;
 
-    updateTopBar(hours, minutes, seconds, toTown);
+    updateTopBarTime(hours, minutes, seconds);
   }
 
   // get every minute (60s), must be larger than HTTP_TIMEOUT
