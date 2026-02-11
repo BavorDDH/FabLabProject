@@ -34,12 +34,20 @@ void initWifi() {
   EPD_4IN2_V2_PartialDisplay(ScreenImage, 0, 0, 400, 60);
 }
 
-void syncTime(unsigned long unixTimeFromApi) {
-  baseUnixTime = unixTimeFromApi;
+void syncTime(unsigned long long unixTimeFromApi) {
+  baseUnixTime = unixTimeFromApi / 1000;
   baseMillis = millis();
 }
 
-unsigned long currentUnixTime() {
-  unsigned long elapsedSeconds = (millis() - baseMillis) / 1000;
+unsigned long long currentUnixTime() {
+  unsigned long long elapsedSeconds = (millis() - baseMillis) / 1000;
   return baseUnixTime + elapsedSeconds;
+}
+
+void debugDisplay(String text) {
+  Paint_Clear(WHITE);
+  Paint_NewImage(ScreenImage, 400, 200, 0, WHITE);
+  Paint_DrawString_EN(10, 0, text.c_str(), &Font16, BLACK, WHITE);
+  EPD_4IN2_V2_PartialDisplay(ScreenImage, 0, 0, 400, 200);
+  delay(5000);
 }

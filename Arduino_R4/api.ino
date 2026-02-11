@@ -7,7 +7,7 @@ enum HttpState {
   HTTP_ERROR
 };
 
-const char *host = "api.example.com";
+const char *host = "fablab-api.mia-coder-512.workers.dev";
 const int port = 80;
 
 WiFiClient wifi;
@@ -17,7 +17,7 @@ HttpState httpState = HTTP_IDLE;
 
 unsigned long requestStartTime;
 
-const unsigned long HTTP_TIMEOUT = 2500;
+const unsigned long HTTP_TIMEOUT = 5000;
 
 void startRequest(int departureCount, bool toTown) {
   if (httpState != HTTP_IDLE) {
@@ -31,6 +31,7 @@ void startRequest(int departureCount, bool toTown) {
   int err = client.get(path);
 
   if (err != 0) {
+    debugDisplay("ERR: " + String(err));
     httpState = HTTP_ERROR;
     return;
   }
@@ -47,6 +48,7 @@ bool pollRequest(DepartureResult &outResult) {
   if (millis() - requestStartTime > HTTP_TIMEOUT) {
     client.stop();
     httpState = HTTP_ERROR;
+    debugDisplay("TIMEOUT");
     return false;
   }
 
@@ -54,8 +56,10 @@ bool pollRequest(DepartureResult &outResult) {
     if (client.available()) {
       int statusCode = client.responseStatusCode();
       if (statusCode != 200) {
+        //debugDisplay(client.responseBody());
         client.stop();
         httpState = HTTP_ERROR;
+        debugDisplay("Http err: " + String(statusCode));
         return false;
       }
 
@@ -83,16 +87,18 @@ void parseResponse(DepartureResult &outResult) {
     outResult.count = 0;
     outResult.success = false;
     httpState = HTTP_ERROR;
+    debugDisplay("JSON ERROR");
     return;
   }
 
   if (!doc.containsKey("time") || !doc.containsKey("departures") || !doc["departures"].is<JsonArray>()) {
     outResult.count = 0;
     outResult.success = false;
+    debugDisplay("JSON FORMAT");
     return;
   }
 
-  outResult.time = doc["time"].as<unsigned long>();
+  outResult.time = doc["time"].as<unsigned long long>();
 
   JsonArray arr = doc["departures"];
   int i = 0;

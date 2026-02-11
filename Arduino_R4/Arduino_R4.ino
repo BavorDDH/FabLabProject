@@ -16,14 +16,14 @@ int buttonState;
 bool toTown = true;
 
 struct DepartureResult {
-  unsigned long time;
+  unsigned long long time;
   char departures[MAX_DEPARTURES][MAX_DEPARTURE_STR_LEN];
   int count;
   bool success;
 };
 DepartureResult currentData;
 
-unsigned long baseUnixTime;  // seconds
+unsigned long long baseUnixTime;  // seconds
 unsigned long baseMillis;    // milliseconds at sync moment
 
 UBYTE* ScreenImage;
@@ -41,9 +41,6 @@ void setup() {
   EPD_4IN2_V2_Clear();
 
   updateTopBar(0, 0, 0, toTown);
-  updateDeparture("31 8:50 15 min", 0);
-  updateDeparture("77 8:55 20 min", 1);
-  updateDeparture("bla bla", 2);
 
   startRequest(MAX_DEPARTURES, toTown);
 }
@@ -51,6 +48,7 @@ void setup() {
 unsigned long lastSecondTick = 0;
 unsigned long lastApiTick = 0;
 
+// todo: full clear every x minutes (EPD_4IN2_V2_Clear)
 void loop() {
   unsigned long now = millis();
 
@@ -70,7 +68,7 @@ void loop() {
   if (now - lastSecondTick >= 1000) {
     lastSecondTick += 1000;
 
-    unsigned long unixTime = currentUnixTime();
+    unsigned long long unixTime = currentUnixTime();
 
     int hours = (unixTime % 86400UL) / 3600;
     int minutes = (unixTime % 3600UL) / 60;
