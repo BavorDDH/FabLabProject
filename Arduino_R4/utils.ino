@@ -33,3 +33,13 @@ void initWifi() {
   Paint_DrawString_EN(10, 0, "Connected to wifi", &Font16, BLACK, WHITE);
   EPD_4IN2_V2_PartialDisplay(ScreenImage, 0, 0, 400, 60);
 }
+
+void syncTime(unsigned long unixTimeFromApi) {
+  baseUnixTime = unixTimeFromApi;
+  baseMillis = millis();
+}
+
+unsigned long currentUnixTime() {
+  unsigned long elapsedSeconds = (millis() - baseMillis) / 1000;
+  return baseUnixTime + elapsedSeconds;
+}

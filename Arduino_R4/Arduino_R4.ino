@@ -9,6 +9,11 @@
 const char* ssid = "JICfree";
 const char* password = "welcome2jic";
 
+bool toTown = true;
+
+unsigned long baseUnixTime; // seconds
+unsigned long baseMillis; // milliseconds at sync moment
+
 UBYTE* ScreenImage;
 
 void setup() {
@@ -21,33 +26,26 @@ void setup() {
 
   EPD_4IN2_V2_Clear();
 
-  uddateTopBar(0, 0, 0, true);
+  updateTopBar(0, 0, 0, toTown);
   updateDeparture("31 8:50 15 min", 0);
   updateDeparture("77 8:55 20 min", 1);
   updateDeparture("bla bla", 2);
 }
 
-int hours = 8;
-int minutes = 30;
-int seconds = 15;
+unsigned long lastUpdate = 0;
 
 void loop() {
-  seconds = seconds + 1;
-  if (seconds == 60) {
-    minutes = minutes + 1;
-    seconds = 0;
-    if (minutes == 60) {
-      hours = hours + 1;
-      minutes = 0;
-      if (hours == 24) {
-        hours = 0;
-        minutes = 0;
-        seconds = 0;
-      }
-    }
+  unsigned long now = millis();
+
+  if (now - lastUpdate >= 1000) {
+    lastUpdate += 1000;   // prevents cumulative drift
+
+    unsigned long unixTime = currentUnixTime();
+
+    int hours   = (unixTime % 86400L) / 3600;
+    int minutes = (unixTime % 3600) / 60;
+    int seconds = unixTime % 60;
+
+    updateTopBar(hours, minutes, seconds, toTown);
   }
-
-  //uddateTopBar(hours, minutes, seconds, true);
-
-  DEV_Delay_ms(500);
 }

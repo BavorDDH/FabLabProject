@@ -6,7 +6,7 @@ sFONT* ItemFont = &Font20;
 const int ItemMargin = 8;
 const int ItemHeight = ItemMargin + TopBarFont->Height;
 
-void uddateTopBar(int hours, int minutes, int seconds, bool toTown) {
+void updateTopBar(int hours, int minutes, int seconds, bool toTown) {
   Paint_NewImage(ScreenImage, EPD_4IN2_V2_WIDTH, TopBarHeight, 0, WHITE);
   Paint_Clear(BLACK);
 
