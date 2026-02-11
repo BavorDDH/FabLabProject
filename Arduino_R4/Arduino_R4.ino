@@ -139,7 +139,7 @@ void setRequestState(RequestState newState) {
     showUpdatingText(newShown);
   }
 
-  Serial.write("Set state to: ");
-  Serial.write(String(newState).c_str());
+  //Serial.write("Set state to: ");
+  //Serial.write(String(newState).c_str());
   currentRequestState = newState;
 }
